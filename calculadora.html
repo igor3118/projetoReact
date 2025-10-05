@@ -71,7 +71,7 @@
             default: 'bg-(--background)',
             primary: 'bg-(--primary)'
         }
-        
+
         function Button({ 
             variant='default',
             className, 
@@ -96,12 +96,26 @@
             )
         }
 
+        function Card({ children, className, ...props }){
+            return(
+                <div className={`
+                    bg-(--background) rounded-2xl
+                    shadow-(--shadow)
+                    ${className ? className : ''}
+                `}
+                {...props}
+                >
+                    {children}
+                </div>
+            )
+        }
+        
     function App(){
         return(
             <main className="py-28 px-4">
-                <Button >
-                    Clica
-                </Button>
+                <Card>
+                    teste
+                </Card>
             </main>
         )
     }    
