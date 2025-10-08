@@ -34,7 +34,7 @@
         }
     </style>
 </head>
-<body class="text-(--text) font-(==font-sans)">
+<body class="MIN-H-SCREEN bg-linear-[180deg,_#807ECE_0%,_#8E7ECE_100%] text-(--text) font-(==font-sans)">
     <div id="root"></div>
     
     <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
@@ -185,11 +185,36 @@
                 </Card>
             )
         }
+
+        function History(){
+            return(
+                <Card className="w-full py-10 px-8">
+                    <Text 
+                     as="h1" 
+                     variant="heading"
+                     className="mb-4"
+                     >
+
+                     Histórico
+                    </Text>
+
+                    <ul clasName="flex flex-col gap-3">
+                       <Text as="li">1 + 1 = 2</Text>
+                       <Text as="li">2 + 2 = 4</Text> 
+                    </ul>
+                </Card>
+            )
+            }
         
     function App(){
         return(
-            <main className="py-28 px-4">
+            <main className={`
+                py-28 px-4 sm:px-10
+                flex flex-col sm:flex-row gap-2
+                items-center sm:justify-stretch
+            `}>
                 <Calculator/>
+                <History/>
             </main>
         )
     }    
