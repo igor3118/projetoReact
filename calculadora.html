@@ -110,6 +110,116 @@
             )
         }
 
+        const buttons = [
+            [
+                {input:"CE"},
+                {input:"C", className:"flex-1 h-16"},
+                {input:"/", variant:"primary"}
+            ],
+            [
+                {input:"7"},
+                {input:"8"},
+                {input:"9"},
+                {input:"*", variant:"primary"},
+            ],
+            [
+                {input:"4"},
+                {input:"5"},
+                {input:"6"},
+                {input:"-", variant:"primary"},
+            ],
+            [
+                {input:"1"},
+                {input:"2"},
+                {input:"3"},
+                {input:"+", variant:"primary"},
+            ],
+            [
+                {input:"C", className:"flex-1 h-16"},
+                {input:","},
+                {input:"=", className:"w-16 h-16 bg[#7F45E2]"}
+            ]
+        ];
+
+        const CalculatorContext= React.createContext()
+
+        function CalculatorProvider({children}){
+            const [history, setHistory]=React.useState([]);
+            const historyStorageKey = 'history'
+
+            function updateHistory(operation,parsedResult){
+                setHistory((prev) => {
+                    const upadteHistory = [ ...prev, `${operation}=${parsedResult}`]
+
+                    localStorage.setItem(historySorageKey,JSON.stringify(updateHistory))
+                    return updateHisotry
+                
+                })
+            }
+
+            react.useEffect(() => {
+                const savedHistory = localStorage.getItem(historySorageKey, JSON.stringify(history))
+                setHistory(JSON.parse(savedHisoty || '[]'))
+
+            }, [])
+
+            return(
+                <CalculatorContext.provider
+                    value={{history,updateHistory}}
+                >
+                children
+                </CalculatorContext.provider>
+            )
+        }
+
+        function useCalculator() {
+      const [operation, setOperation] = React.useState('');
+      const [result, setResult] = React.useState('')
+      const { updateHistory } = React.useContext(CalculatorContext)
+
+      function doOperation(input) {
+        if (input === 'C') {
+          setOperation("");
+          setResult("");
+          return
+        }
+
+        if (input === 'CE') {
+          setResult("");
+          setOperation(operation.slice(0, -1));
+          return;
+        }
+
+        if (input === '=') {
+          const operationResult = eval(operation.replace(/,/g, '.'));
+          const parsedResult = operationResult.toString()?.replace(/\./g, ',')
+          setResult(parsedResult)
+          updateHistory(operation, parsedResult)
+
+          return;
+        }
+
+        if (result) {
+          setOperation(isNaN(input) ? `${result}${input}` : input)
+          setResult('');
+          return;
+        }
+
+        if (input === ',' && !operation.endsWith(',')) {
+          setOperation(`${operation},`);
+          return;
+        }
+
+        setOperation(`${operation}${input}`)
+      }
+
+      return {
+        operation,
+        result,
+        doOperation
+      }
+    }
+
         function Display({operation, result}){
             return(
                 <div className={`
@@ -119,16 +229,16 @@
                     `}>
                         <Text 
                          as="div" variant="muted" 
-                         className="flex items-center justify-end"
+                         className="flex items-center justify-end h-7"
                         >
-                            {operation}
+                            {result && operation}
                         </Text>
-                        <div className={`flex items-center justify-between`}>
+                        <div className={`flex items-center justify-between h-9`}>
                             <Text variant="muted">
                                 =
                             </Text>
                             <Text variant="blast">
-                                {result}
+                                {result || operation}
                             </Text>
                             
                         </div>
@@ -136,86 +246,83 @@
             )
         }
 
-        function Calculator(){
-            return(
-                <Card className={`
-                    flex flex-col gap-[1.625rem] w-[22.25rem]
-                    pt-14 px-8 pb-8
-                `}>
-                    <Display operation="1 + 1" result="2"/>
+        function Calculator() {
+        const { operation, result, doOperation } = useCalculator()
 
-                    <div className="flex flex-col gap-3">
-                        <div className="flex gap-3">
-                            <Button className="w-16 h-16">CE</Button>
-                            <Button className=" flex-1 h-16">C</Button>
-                            <Button className="w-16 h-16" variant="primary">/</Button>
-                        </div>
-                    </div>
-                    <div className="flex flex-col gap-3">
-                        <div className="flex gap-3">
-                            <Button className="w-16 h-16">7</Button>
-                            <Button className="w-16 h-16">8</Button>
-                            <Button className="w-16 h-16">9</Button>
-                            <Button className="w-16 h-16" variant="primary">*</Button>
-                        </div>
-                    </div>
-                    <div className="flex flex-col gap-3">
-                        <div className="flex gap-3">
-                            <Button className="w-16 h-16">4</Button>
-                            <Button className="w-16 h-16">5</Button>
-                            <Button className="w-16 h-16">6</Button>
-                            <Button className="w-16 h-16" variant="primary">-</Button>
-                        </div>
-                    </div>
-                     <div className="flex flex-col gap-3">
-                        <div className="flex gap-3">
-                            <Button className="w-16 h-16">1</Button>
-                            <Button className="w-16 h-16">2</Button>
-                            <Button className="w-16 h-16">3</Button>
-                            <Button className="w-16 h-16" variant="primary">+</Button>
-                        </div>
-                    </div>
-                    <div className="flex flex-col gap-3">
-                        <div className="flex gap-3">
-                            <Button className="h-16 flex-1">0</Button>
-                            <Button className="w-16 h-16">,</Button>
-                            <Button className="w-16 h-16" variant="primary">=</Button>
-                        </div>
-                    </div>
-                </Card>
-            )
+        function handleInputClick(input) {
+            doOperation(input)
         }
 
-        function History(){
-            return(
-                <Card className="w-full py-10 px-8">
-                    <Text 
-                     as="h1" 
-                     variant="heading"
-                     className="mb-4"
-                     >
-
-                     Histórico
-                    </Text>
-
-                    <ul clasName="flex flex-col gap-3">
-                       <Text as="li">1 + 1 = 2</Text>
-                       <Text as="li">2 + 2 = 4</Text> 
-                    </ul>
-                </Card>
-            )
-            }
-        
-    function App(){
-        return(
-            <main className={`
-                py-28 px-4 sm:px-10
-                flex flex-col sm:flex-row gap-2
-                items-center sm:justify-stretch
+        return (
+            <Card className={`
+                flex flex-col gap-[1.625rem] w-[22.25rem]
+                pt-14 px-8 pb-8
             `}>
-                <Calculator/>
-                <History/>
-            </main>
+            <Display
+                operation={operation}
+                result={result}
+            />
+
+            <div className="flex flex-col gap-3">
+                {buttons.map((row, index) => (
+                <div key={`row-${index}`} className="flex gap-3">
+                    {row.map(button => (
+                    <Button
+                        key={button.input}
+                        className={button.className || "w-16 h-16"}
+                        variant={button.variant}
+                        onClick={() => handleInputClick(button.input)}
+                    >
+                    {button.input}
+                  </Button>
+                ))}
+              </div>
+
+            ))}
+          </div>
+        </Card>
+      )
+    }
+
+        function OperationHistory() {
+      const { history } = React.useContext(CalculatorContext)
+
+      return (
+        <Card className="w-full py-10 px-8">
+          <Text
+            as="h1"
+            variant="heading"
+            className="mb-4"
+          >
+            Histórico de Operações
+          </Text>
+
+          {history.length > 0 ? (
+            <ul className="flex flex-col gap-3">
+              {history.map((value, index) => (
+                <Text key={`item-${index}`} as="li">{value}</Text>
+              ))}
+            </ul>
+          ) : (
+            <Text as="p" variant="muted">Nenhuma operação recente.</Text>
+          )}
+        </Card>
+      )
+    }
+
+    function App() {
+      return (
+        <main className={`
+          py-28 px-4 sm:px-10
+          flex flex-col sm:flex-row
+          items-center sm:items-stretch
+          gap-2
+          `}>
+          <CalculatorProvider>
+            <Calculator />
+            <OperationHistory />
+          </CalculatorProvider>
+        </main>          
         )
     }    
     
