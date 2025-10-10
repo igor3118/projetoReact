@@ -137,7 +137,7 @@
             [
                 {input:"C", className:"flex-1 h-16"},
                 {input:","},
-                {input:"=", className:"w-16 h-16 bg[#7F45E2]"}
+                {input:"=", className:"w-16 h-16 bg-[#7F45E2]"}
             ]
         ];
 
@@ -149,26 +149,26 @@
 
             function updateHistory(operation,parsedResult){
                 setHistory((prev) => {
-                    const upadteHistory = [ ...prev, `${operation}=${parsedResult}`]
+                    const updateHistory = [ ...prev, `${operation}=${parsedResult}`];
 
-                    localStorage.setItem(historySorageKey,JSON.stringify(updateHistory))
-                    return updateHisotry
+                    localStorage.setItem(historyStorageKey,JSON.stringify(updateHistory));
+                    return (updateHistory);
                 
                 })
             }
 
-            react.useEffect(() => {
-                const savedHistory = localStorage.getItem(historySorageKey, JSON.stringify(history))
-                setHistory(JSON.parse(savedHisoty || '[]'))
+            React.useEffect(() => {
+                const savedHistory = localStorage.getItem(historyStorageKey);
+                setHistory(JSON.parse(savedHistory || '[]'))
 
             }, [])
 
             return(
-                <CalculatorContext.provider
+                <CalculatorContext.Provider
                     value={{history,updateHistory}}
                 >
-                children
-                </CalculatorContext.provider>
+                {children}
+                </CalculatorContext.Provider>
             )
         }
 
